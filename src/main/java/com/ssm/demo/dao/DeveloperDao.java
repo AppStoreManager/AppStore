@@ -18,7 +18,7 @@ public interface DeveloperDao {
     boolean updateDeveloper(Developer dev);//修改开发者
 
     //查找
-    Developer getDeveloper(String name);//获取开发者
+    Developer selectDeveloper(String name);//获取开发者
 
 
 }
