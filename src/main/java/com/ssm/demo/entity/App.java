@@ -6,11 +6,19 @@ public class App {
     public String getAppName(){
         return appName;
     }
+<<<<<<< HEAD
 
     public void setAppName(String appName){
         this.appName=appName;
     }
 
+=======
+    
+    pubic void setAppName(String appName){
+        this.appName=appName;
+    
+    }
+>>>>>>> f51167663e1425e7fe882cdf0a423af7826ace0f
     public AppBasic getBasic() {
         return basic;
     }
