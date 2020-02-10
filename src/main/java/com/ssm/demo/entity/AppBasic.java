@@ -5,7 +5,8 @@ public class AppBasic{
     String url; //下载地址
     String author; //作者
     String name; //APP的名字
-    boolean state; //状态（已上架/待审核）
+    boolean state = false; //状态（审核通过/待审核）
+
     public void setName(String name) {
         this.name = name;
     }
@@ -45,4 +46,5 @@ public class AppBasic{
     public void setState(boolean state) {
         this.state = state;
     }
+
 }
