@@ -1,5 +1,8 @@
 package entity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @author ZhutianLin
  * @version 1.0.0
@@ -11,6 +14,7 @@ public class Developer {
     private String devNickname;//昵称
     private String devPassword;//密码
     private String devInfo;//用户信息
+    private List appList=new ArrayList();//用户App列表，初始为空
 
     //getter&setter
     public String getDevUsername() {
@@ -27,6 +31,14 @@ public class Developer {
 
     public void setDevNickname(String devNickname) {
         this.devNickname = devNickname;
+    }
+
+    public List getAppList() {
+        return appList;
+    }
+
+    public void setAppList(List appList) {
+        this.appList = appList;
     }
 
     public String getDevPassword() {
