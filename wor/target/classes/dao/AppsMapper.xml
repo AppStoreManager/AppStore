@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- mapper:根标签，namespace：命名空间，这里指的是封装的DAO -->
+<mapper namespace="com.ssm.demo.dao.AppsDao">
+    <!-- resultMap -->
+    <resultMap id="App" type="com.ssm.demo.entity.App">
+        <result column="appName" property="appName"/>
+        <result column="type" property="type"/>
+<!-- 从表 App 表映射到 AppVersion和AppBasic-->
+        <collection property="version" ofType="com.ssm.demo.entity.AppVersion">
+            <result column="name" property="name"/>
+            <result column="time" property="time"/>
+            <result column="versionId" property="versionId"/>
+            <result column="versionInformation" property="versionInformation"/>
+            <!-- 而 orderDetail 这张表的 itemid 外键只对应 items 表中一条数据,所以此处用association-->
+        </collection>
+
+        <collection property="basic" ofType="com.ssm.demo.entity.AppBasic">
+            <result column="examine" property="examine"/>
+            <result column="state" property="state"/>
+            <result column="name" property="name"/>
+            <result column="author" property="author"/>
+            <result column="url" property="url"/>
+            <result column="basicInformation" property="basicInformation"/>
+        </collection>
+    </resultMap>
+    
+    <!-- sql语句的实现 -->
+
+    <!--    TODO：这里存在一个问题，两个都是写的是name，所以会冲突，需要改！！！-->
+<!--   fixme: 其中存在着传入多个参数需要解决-->
+    <insert id="insertNewApp" parameterType="App">
+--         添加版本信息
+        insert into AppVersion(name,time,VersionId,VersionInformation)
+        values(#{name},#{time},{versionId},{versionInformation})
+--         添加基本信息
+        insert into AppBasic(state,name,author,url)
+        values(#{state},#{name},#{author},#{url})
+--         TODO：这里绝对可以优化，但是先这么写着吧，还不太会做
+--        最后添加总体的信息
+        insert into App(appName,AppVersion,AppBasic)
+        values(
+            #{appName},
+            select id from AppBasic where state=#{state} and name=#{name} and author=#{author} and url=#{url},
+            select id from AppVersion where name=#{name} and time=#{time} and versionId=#{versionId} and versionInformation=#{versionInformation}
+        )
+
+
+
+    </insert>
+
+
+    <insert id="insertNewVersion" parameterType="App">
+--         添加版本信息
+        insert into AppVersion(name,time,VersionId,VersionInformation)
+        values(#{name},#{time},{versionId},{versionInformation})
+--         TODO：这里绝对可以优化，但是先这么写着吧，还不太会做
+--        最后添加总体的信息
+        insert into App(appName,AppVersion)
+        values(
+            #{appName},
+            select id from AppVersion where name=#{name} and time=#{time} and versionId=#{versionId} and versionInformation=#{versionInformation}
+        )
+
+
+
+    </insert>
+
+
+    <delete id="deleteAll" parameterType="String">
+        delete from AppVersion where AppVersion.id=(select id from AppVersion where name = #{appName})
+        delete from AppBasic where AppBasic.id=(select id from AppVersion  where name = #{appName})
+        delete from App where appName = #{appName}
+    </delete>
+
+    <delete id="delete" parameterType="String">
+        delete from AppVersion where AppVersion.id=(select appVersion where name = #{appName} and versionId=#{versionId})
+    </delete>
+
+    <update id="updateBasicInformation" parameterType="Map">
+        update AppBasic
+        set state=#{state} and name=#{name} and author=#{author} and url=#{url}
+        where name = #{name}
+    </update>
+
+    <update id="updateVersion" parameterType="Map">
+        update AppVersion
+         set name=#{name} and time=#{time} and versionId=#{versionId} and versionInformation=#{versionInformation}
+         where name = #{name}
+    </update>
+
+    <select id="selectByName" resultType="App" parameterType="String">
+        select
+            appName,
+            AppVersion,
+            AppBasic,
+            name,
+            time,
+            VersionId,
+            VersionInformation,
+            state,
+            name,
+            author,
+            url,
+            basicInformation
+        from App,AppVersion,AppBasic
+        where
+            appName=#{appName} and
+            AppBasic=AppBasic.id and
+            AppVersion=AppVersion.id
+
+    </select>
+
+
+</mapper>
