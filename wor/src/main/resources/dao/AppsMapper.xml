@@ -34,7 +34,7 @@
     <insert id="insertNewApp" parameterType="App">
 --         添加版本信息
         insert into AppVersion(vname,updateTime,VersionId,VersionInformation)
-        values(#{vname},#{updateTime},{versionId},{versionInformation})
+        values(#{vname},#{updateTime},#{versionId},#{versionInformation})
 --         添加基本信息
         insert into AppBasic(state,bname,author,url,examine)
         values(#{state},#{bname},#{author},#{url},#{examine})
@@ -55,7 +55,7 @@
     <insert id="insertNewVersion" parameterType="App">
 --         添加版本信息
         insert into AppVersion(vname,updateTime,VersionId,VersionInformation)
-        values(#{vname},#{updateTime},{versionId},{versionInformation})
+        values(#{vname},#{updateTime},#{versionId},#{versionInformation})
 --         TODO：这里绝对可以优化，但是先这么写着吧，还不太会做
 --        最后添加总体的信息
         insert into App(appName,AppVersion)
