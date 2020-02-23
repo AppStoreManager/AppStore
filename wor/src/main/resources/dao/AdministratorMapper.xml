@@ -17,33 +17,50 @@
     <!-- sql语句的实现 -->
     <!--对userInfo表格的操作-->
     <insert id="createNewAdministrator" parameterType="Administrator">
-        insert into Administrator(userName, nickname, password, verifyRange)
-        values(#{userName}, #{nickname}, #{password}, #{verifyRange})
+        INSERT INTO Administrator ( userName, nickname, password, verifyRange )
+        VALUES
+	(#{userName}, #{nickname}, #{password}, #{verifyRange})
     </insert>
     <delete id="deleteAdministrator" parameterType="String">
-        delete from Administrator where userName = #{userName}
+        DELETE 
+        FROM
+                Administrator 
+        WHERE
+                userName = #{userName}
     </delete>
     <select id="getAdministrator" resultMap="AdministratorInfo" parameterType="String">
         select * from Administrator where userName = #{userName}
     </select>
 
     <select id="getVerifyRange" resultType="String" parameterType="String">
-        select verifyRange from Administrator where userName = #{userName}
+       SELECT
+	* 
+        FROM
+                Administrator 
+        WHERE
+                userName = #{userName}
    </select>
 
     <select id="loginCheck" resultType="String" parameterType="String">
-        select password from Administrator where userName = #{userName}
+        SELECT PASSWORD 
+        FROM
+                Administrator 
+        WHERE
+                userName = #{userName}
    </select>
 
     <update id="changePassword" parameterType="Map">
-        update Administrator set password = #{password} where userName = #{userName}
+        UPDATE Administrator 
+        SET PASSWORD = #{password} where userName = #{userName}
     </update>
 
     <update id="changeNickname" parameterType="Map">
-        update Administrator set nickname = #{nickname} where userName = #{userName}
+        UPDATE Administrator 
+        SET nickname = #{nickname} where userName = #{userName}
     </update>
 
     <update id="changeVerifyRange" parameterType="Map">
-        update Administrator set verifyRange = #{range} where userName = #{userName}
+        UPDATE Administrator 
+        SET verifyRange = #{range} where userName = #{userName}
     </update>
 </mapper>
