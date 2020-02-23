@@ -63,10 +63,12 @@ public class ResultModelTool {
                     handledModel.setMsg("已确认管理员权限");
                     handledModel.setData(map);
                     handledModel.setData(resultModel.getData());
+                    break;
                 case 424:
                     handledModel.setMsg("已确认开发者身份");
                     handledModel.setData(map);
                     handledModel.setData(resultModel.getData());
+                    break;
                 case 500:
                     handledModel.setMsg("密码错误");
                     handledModel.setData(map);

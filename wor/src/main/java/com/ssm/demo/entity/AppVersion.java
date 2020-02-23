@@ -1,7 +1,7 @@
 package com.ssm.demo.entity;
 
 public class AppVersion{
-    String name;
+    String vname;
     String versionInformation; //版本说明
     String versionId;//版本号
     String updateTime; //修改时间
@@ -21,12 +21,12 @@ public class AppVersion{
         this.versionId = versionId;
     }
 
-    public String getName() {
-        return name;
+    public String getVname() {
+        return vname;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setVname(String vname) {
+        this.vname = vname;
     }
 
     public String getUpdateTime() {

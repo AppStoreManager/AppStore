@@ -46,7 +46,7 @@ public class AppStoreServiceImpl implements AppStoreService {
     * 本次程序运行，数据并非永久化，所以目前也只是更改状态
     *
     *已解决：按照新增而非更新插入，审核后按照不同的审核结果删除不同内容*/
-    public int newAppBasic(String basicInformation, String author,String name){
+    public int newAppBasic(String basicInformation, String author,String name,String type){
 //        if(appsDao.selectByName(name)!=null){
 //            System.out.println(appsDao.selectByName(name));
 //            return ErrorCode.EXSITED;
@@ -56,12 +56,15 @@ public class AppStoreServiceImpl implements AppStoreService {
         AppBasic appBasic = new AppBasic();
         AppVersion appVersion = new AppVersion();
 
+        app.setAppName(name);
+        app.setTypes(type);
+
         appBasic.setBasicInformation(basicInformation);
         appBasic.setAuthor(author);
-        appBasic.setName(name);
+        appBasic.setBname(name);
         appBasic.setUrl("D:\\JavaHomework\\AppStore");
 
-        appVersion.setName(name);
+        appVersion.setVname(name);
         appVersion.setVersionId("1.0.0");
         appVersion.setVersionInformation("应用"+name+"首次发布，欢迎使用");
 
@@ -89,7 +92,7 @@ public class AppStoreServiceImpl implements AppStoreService {
         App app = (App)appsDao.selectByName(name).get(0);
         AppVersion appVersion = new AppVersion();
 
-        appVersion.setName(name);
+        appVersion.setVname(name);
         appVersion.setVersionId(versionId);
         appVersion.setVersionInformation(versionInformation);
 
@@ -284,19 +287,18 @@ public class AppStoreServiceImpl implements AppStoreService {
         }
         return ErrorCode.OK;
     }
-    public int judge(String userId,String password){
-        Developer developer =(Developer)developerDao.selectDeveloper(userId);
-        if(developer != null){
-            if(developer.getDevPassword().equals(password))return ErrorCode.DEVELOPER;
-            else return ErrorCode.PASSWORD_ERROR;
-        }
-        else{
-            Administrator administrator =(Administrator)administratorDao.getAdministrator(userId);
-            if(administrator==null)return ErrorCode.NO_USER;
-            else if(administrator.getPassword().equals(password))return ErrorCode.ADMINISTRATOR;
-            else return ErrorCode.PASSWORD_ERROR;
-        }
+    public int judgeA(String userId,String password){
+           Administrator administrator =(Administrator)administratorDao.getAdministrator(userId);
+           if(administrator==null)return ErrorCode.NO_USER;
+           else if(administrator.getPassword().equals(password))return ErrorCode.ADMINISTRATOR;
+           else return ErrorCode.PASSWORD_ERROR;
 
+    }
+    public int judgeD(String userId,String password){
+        Developer developer =(Developer)developerDao.selectDeveloper(userId);
+        if(developer == null)return ErrorCode.NO_USER;
+        else if(developer.getDevPassword().equals(password))return ErrorCode.DEVELOPER;
+        else return ErrorCode.PASSWORD_ERROR;
     }
     public Administrator getAdminByName(String name){
 

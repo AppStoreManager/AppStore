@@ -4,16 +4,16 @@ public class AppBasic{
     String basicInformation; //基本信息
     String url; //下载地址
     String author; //作者
-    String name; //APP的名字
+    String bname; //APP的名字
     boolean state = false; //状态（上架/下架）
     int examine = 0;//审核情况（0等待审核 1审核通过 -1审核未通过）
 
-    public void setName(String name) {
-        this.name = name;
+    public void setBname(String bname) {
+        this.bname = bname;
     }
 
-    public String getName() {
-        return name;
+    public String getBname() {
+        return bname;
     }
 
     public String getBasicInformation() {

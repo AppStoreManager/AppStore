@@ -28,7 +28,7 @@
         WHERE
                 userName = #{userName}
     </delete>
-    <select id="getAdministrato[r" resultMap="AdministratorInfo" parameterType="String">
+    <select id="getAdministrator" resultMap="AdministratorInfo" parameterType="String">
         select * from Administrator where userName = #{userName}
     </select>
 

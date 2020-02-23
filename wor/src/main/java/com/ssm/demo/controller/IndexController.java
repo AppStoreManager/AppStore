@@ -80,10 +80,10 @@ public class IndexController {
         return ResultModelTool.handleResultModel(resultModel);
     }
     @RequestMapping(value = "/nappBasic")
-    public ResultModel newBasic(@RequestParam String basicInformation,@RequestParam String author,@RequestParam String name){
+    public ResultModel newBasic(@RequestParam String basicInformation,@RequestParam String author,@RequestParam String name,@RequestParam String type){
         ResultModel resultModel = new ResultModel();
         resultModel.setData(null);
-        int errorCode = storeService.newAppBasic(basicInformation, author, name);
+        int errorCode = storeService.newAppBasic(basicInformation, author, name,type);
         resultModel.setCode(errorCode);
         return ResultModelTool.handleResultModel(resultModel);
     }
@@ -128,6 +128,26 @@ public class IndexController {
         ResultModel resultModel = new ResultModel();
         resultModel.setData(null);
         int errorCode = storeService.newDev(userName, nickName, password, info);
+        resultModel.setCode(errorCode);
+        return ResultModelTool.handleResultModel(resultModel);
+    }
+
+    @RequestMapping(value = "/judgeAdmin")
+    @ResponseBody
+    public ResultModel judgeAdmin(@RequestParam String id,@RequestParam String password){
+        ResultModel resultModel = new ResultModel();
+        resultModel.setData(null);
+        int errorCode = storeService.judgeA(id,password);
+        resultModel.setCode(errorCode);
+        return ResultModelTool.handleResultModel(resultModel);
+    }
+
+    @RequestMapping(value = "/judgeDev")
+    @ResponseBody
+    public ResultModel judgeDev(@RequestParam String id,@RequestParam String password){
+        ResultModel resultModel = new ResultModel();
+        resultModel.setData(null);
+        int errorCode = storeService.judgeD(id,password);
         resultModel.setCode(errorCode);
         return ResultModelTool.handleResultModel(resultModel);
     }
