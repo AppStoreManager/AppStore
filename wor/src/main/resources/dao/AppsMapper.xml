@@ -32,20 +32,24 @@
     <!--    TODO：这里存在一个问题，两个都是写的是name，所以会冲突，需要改！！！-->
     <!--   fixme: 其中存在着传入多个参数需要解决-->
     <insert id="insertNewApp" parameterType="App">
+        --         添加基本信息
+        insert into AppBasic(state,bname,author,url,examine,basicInformation)
+        values(${state},${bname},${author},${url},${examine},${basicInformation});
 --         添加版本信息
         insert into AppVersion(vname,updateTime,VersionId,VersionInformation)
-        values(#{vname},#{updateTime},#{versionId},#{versionInformation})
---         添加基本信息
-        insert into AppBasic(state,bname,author,url,examine)
-        values(#{state},#{bname},#{author},#{url},#{examine})
---         TODO：这里绝对可以优化，但是先这么写着吧，还不太会做
+        values(${vname},${updateTime},${versionId},${versionInformation});
+
 --        最后添加总体的信息
-        insert into App(appName,AppVersion,AppBasic,types)
+        insert into App(appName,appBasic,appVersion,types)
         values(
-            #{appName},
+            ${appName},
             select id from AppBasic where state=#{state} and bname=#{bname} and author=#{author} and url=#{url},
-            select id from AppVersion where version.vname=#{vname} and updateTime=#{updateTime} and versionId=#{versionId} and versionInformation=#{versionInformation}
+            select id from AppVersion where version.vname=#{vname} and updateTime=#{updateTime} and versionId=#{versionId} and versionInformation=#{versionInformation},
+            ,${types}
+
         )
+--         AppBasic,AppVersion
+
 
 
 
