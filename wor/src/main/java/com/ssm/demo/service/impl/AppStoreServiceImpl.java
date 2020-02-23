@@ -244,6 +244,7 @@ public class AppStoreServiceImpl implements AppStoreService {
                     AppBasic appBasic = app.getBasic();
                     appBasic.setState(true);
                     app.setBasic(appBasic);
+                    appsDao.updateVersion(app,name,versionId);
                 }
             }
         }
@@ -261,6 +262,7 @@ public class AppStoreServiceImpl implements AppStoreService {
                     AppBasic appBasic = app.getBasic();
                     appBasic.setState(false);
                     app.setBasic(appBasic);
+                    appsDao.updateVersion(app,name,versionId);
             }
         }
         return ErrorCode.OK;

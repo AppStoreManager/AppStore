@@ -8,6 +8,7 @@ import com.ssm.demo.result.ResultModelTool;
 import com.ssm.demo.service.AppStoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -18,6 +19,13 @@ import java.util.Map;
 public class IndexController {
     @Autowired
     AppStoreService storeService;
+
+
+    @RequestMapping("/index")
+    public String index() {
+        return "index";
+    }
+
     @RequestMapping(value = "/admin")
     @ResponseBody
     public ResultModel getAdministrator(@RequestParam String name) {
