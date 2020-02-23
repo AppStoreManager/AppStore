@@ -4,7 +4,7 @@ public class AppVersion{
     String name;
     String versionInformation; //版本说明
     String versionId;//版本号
-    String time; //修改时间
+    String updateTime; //修改时间
     public String getVersionInformation() {
         return versionInformation;
     }
@@ -29,11 +29,11 @@ public class AppVersion{
         this.name = name;
     }
 
-    public String getTime() {
-        return time;
+    public String getUpdateTime() {
+        return updateTime;
     }
 
-    public void setTime(String time) {
-        this.time = time;
+    public void setUpdateTime(String updateTime) {
+        this.updateTime = updateTime;
     }
 }

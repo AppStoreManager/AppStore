@@ -7,11 +7,11 @@
     <!-- resultMap -->
     <resultMap id="App" type="com.ssm.demo.entity.App">
         <result column="appName" property="appName"/>
-        <result column="type" property="type"/>
-<!-- 从表 App 表映射到 AppVersion和AppBasic-->
+        <result column="types" property="types"/>
+        <!-- 从表 App 表映射到 AppVersion和AppBasic-->
         <collection property="version" ofType="com.ssm.demo.entity.AppVersion">
             <result column="name" property="name"/>
-            <result column="time" property="time"/>
+            <result column="updateTime" property="updateTime"/>
             <result column="versionId" property="versionId"/>
             <result column="versionInformation" property="versionInformation"/>
             <!-- 而 orderDetail 这张表的 itemid 外键只对应 items 表中一条数据,所以此处用association-->
@@ -26,25 +26,25 @@
             <result column="basicInformation" property="basicInformation"/>
         </collection>
     </resultMap>
-    
+
     <!-- sql语句的实现 -->
 
     <!--    TODO：这里存在一个问题，两个都是写的是name，所以会冲突，需要改！！！-->
-<!--   fixme: 其中存在着传入多个参数需要解决-->
+    <!--   fixme: 其中存在着传入多个参数需要解决-->
     <insert id="insertNewApp" parameterType="App">
 --         添加版本信息
-        insert into AppVersion(name,time,VersionId,VersionInformation)
-        values(#{name},#{time},{versionId},{versionInformation})
+        insert into AppVersion(version.name,updateTime,VersionId,VersionInformation)
+        values(#{name},#{updateTime},{versionId},{versionInformation})
 --         添加基本信息
-        insert into AppBasic(state,name,author,url)
-        values(#{state},#{name},#{author},#{url})
+        insert into AppBasic(state,basic.name,author,url,examine)
+        values(#{state},#{name},#{author},#{url},#{examine})
 --         TODO：这里绝对可以优化，但是先这么写着吧，还不太会做
 --        最后添加总体的信息
-        insert into App(appName,AppVersion,AppBasic)
+        insert into App(appName,AppVersion,AppBasic,types)
         values(
             #{appName},
-            select id from AppBasic where state=#{state} and name=#{name} and author=#{author} and url=#{url},
-            select id from AppVersion where name=#{name} and time=#{time} and versionId=#{versionId} and versionInformation=#{versionInformation}
+            select id from AppBasic where state=#{state} and basic.name=#{name} and author=#{author} and url=#{url},
+            select id from AppVersion where version.name=#{name} and updateTime=#{updateTime} and versionId=#{versionId} and versionInformation=#{versionInformation}
         )
 
 
@@ -54,14 +54,14 @@
 
     <insert id="insertNewVersion" parameterType="App">
 --         添加版本信息
-        insert into AppVersion(name,time,VersionId,VersionInformation)
-        values(#{name},#{time},{versionId},{versionInformation})
+        insert into AppVersion(name,updateTime,VersionId,VersionInformation)
+        values(#{name},#{updateTime},{versionId},{versionInformation})
 --         TODO：这里绝对可以优化，但是先这么写着吧，还不太会做
 --        最后添加总体的信息
         insert into App(appName,AppVersion)
         values(
             #{appName},
-            select id from AppVersion where name=#{name} and time=#{time} and versionId=#{versionId} and versionInformation=#{versionInformation}
+            select id from AppVersion where name=#{name} and updateTime=#{updateTime} and versionId=#{versionId} and versionInformation=#{versionInformation}
         )
 
 
@@ -81,27 +81,29 @@
 
     <update id="updateBasicInformation" parameterType="Map">
         update AppBasic
-        set state=#{state} and name=#{name} and author=#{author} and url=#{url}
+        set state=#{state} and name=#{name} and author=#{author} and url=#{url} and examine=#{examine}
         where name = #{name}
     </update>
 
     <update id="updateVersion" parameterType="Map">
         update AppVersion
-         set name=#{name} and time=#{time} and versionId=#{versionId} and versionInformation=#{versionInformation}
+         set name=#{name} and updateTime=#{updateTime} and versionId=#{versionId} and versionInformation=#{versionInformation}
          where name = #{name}
     </update>
 
-    <select id="selectByName" resultType="App" parameterType="String">
+    <select id="selectByName" resultMap="App" parameterType="String">
         select
             appName,
+            types,
             AppVersion,
             AppBasic,
-            name,
-            time,
+            appBasic.name,
+            updateTime,
+            examine,
             VersionId,
             VersionInformation,
             state,
-            name,
+            appVersion.name,
             author,
             url,
             basicInformation
@@ -113,5 +115,51 @@
 
     </select>
 
+    <select id="selectByType" resultMap="App" parameterType="String">
+        select
+            appName,
+            types,
+            AppVersion,
+            AppBasic,
+            appBasic.name,
+            updateTime,
+            examine,
+            VersionId,
+            VersionInformation,
+            state,
+            appVersion.name,
+            author,
+            url,
+            basicInformation
+        from App,AppVersion,AppBasic
+        where
+            type =#{type} and
+            AppBasic=AppBasic.id and
+            AppVersion=AppVersion.id
+
+    </select>
+    <select id="selectByAuthor" resultMap="App" parameterType="String">
+        select
+            appName,
+            types,
+            AppVersion,
+            AppBasic,
+            appBasic.name,
+            updateTime,
+            examine,
+            VersionId,
+            VersionInformation,
+            state,
+            appVersion.name,
+            author,
+            url,
+            basicInformation
+        from App,AppVersion,AppBasic
+        where
+            AppBasic.author=#{author} and
+            AppBasic=AppBasic.id and
+            AppVersion=AppVersion.id
+
+    </select>
 
 </mapper>

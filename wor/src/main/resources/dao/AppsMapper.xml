@@ -44,7 +44,7 @@
         values(
             #{appName},
             select id from AppBasic where state=#{state} and name=#{name} and author=#{author} and url=#{url},
-            select id from AppVersion where name=#{name} and updateTime=#{updateTime} and versionId=#{versionId} and versionInformation=#{versionInformation}
+            select id from AppVersion where version.name=#{name} and updateTime=#{updateTime} and versionId=#{versionId} and versionInformation=#{versionInformation}
         )
 
 
@@ -91,7 +91,7 @@
          where name = #{name}
     </update>
 
-    <select id="selectByName" resultType="App" parameterType="String">
+    <select id="selectByName" resultMap="App" parameterType="String">
         select
             appName,
             types,
@@ -115,5 +115,51 @@
 
     </select>
 
+    <select id="selectByType" resultMap="App" parameterType="String">
+        select
+            appName,
+            types,
+            AppVersion,
+            AppBasic,
+            appBasic.name,
+            updateTime,
+            examine,
+            VersionId,
+            VersionInformation,
+            state,
+            appVersion.name,
+            author,
+            url,
+            basicInformation
+        from App,AppVersion,AppBasic
+        where
+            type =#{type} and
+            AppBasic=AppBasic.id and
+            AppVersion=AppVersion.id
+
+    </select>
+    <select id="selectByAuthor" resultMap="App" parameterType="String">
+        select
+            appName,
+            types,
+            AppVersion,
+            AppBasic,
+            appBasic.name,
+            updateTime,
+            examine,
+            VersionId,
+            VersionInformation,
+            state,
+            appVersion.name,
+            author,
+            url,
+            basicInformation
+        from App,AppVersion,AppBasic
+        where
+            AppBasic.author=#{author} and
+            AppBasic=AppBasic.id and
+            AppVersion=AppVersion.id
+
+    </select>
 
 </mapper>

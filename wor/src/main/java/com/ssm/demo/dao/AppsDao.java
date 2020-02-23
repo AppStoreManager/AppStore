@@ -17,4 +17,5 @@ public interface AppsDao{
     void updateVersion(App app,String name,String versionId);//每一次更新后修改版本说明，版本号，修改时间这些与版本相关的信息
     List<App> selectByName(String name);//返回全部对应名字的APP集合
     List<App> selectByType(String type);//返回全部对应类型的App集合
+    List<App> selectByAuthor(String author);
 }

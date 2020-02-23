@@ -11,27 +11,27 @@
         <result column="devNickname" property="devNickname"/>
         <result column="devPassword" property="devPassword"/>
         <result column="devInfo" property="devInfo"/>
-        <!--从表 Developer 表映射到 AppList-->
-<!--        <collection property="appList" ofType="com.ssm.demo.entity.App">-->
-<!--            <result column="appName" property="appName"/>-->
-<!--            <result column="types" property="types"/>-->
-<!--            &lt;!&ndash;从表 App 表映射到 AppVersion和AppBasic&ndash;&gt;-->
-<!--            <collection property="appVersion" ofType="com.ssm.demo.entity.AppVersion">-->
-<!--                <result column="name" property="name"/>-->
-<!--                <result column="updateTime" property="updateTime"/>-->
-<!--                <result column="versionId" property="versionId"/>-->
-<!--                <result column="versionInformation" property="versionInformation"/>-->
-<!--                &lt;!&ndash; 而 orderDetail 这张表的 itemid 外键只对应 items 表中一条数据,所以此处用association&ndash;&gt;-->
+<!--        从表 Developer 表映射到 AppList-->
+        <collection property="appList" ofType="com.ssm.demo.entity.App">
+            <result column="appName" property="appName"/>
+            <result column="types" property="types"/>
+            <!--从表 App 表映射到 AppVersion和AppBasic-->
+            <collection property="version" ofType="com.ssm.demo.entity.AppVersion">
+                <result column="name" property="name"/>
+                <result column="updateTime" property="updateTime"/>
+                <result column="versionId" property="versionId"/>
+                <result column="versionInformation" property="versionInformation"/>
+                <!-- 而 orderDetail 这张表的 itemid 外键只对应 items 表中一条数据,所以此处用association-->
 
-<!--            </collection>-->
-<!--            <collection property="appBasic" ofType="com.ssm.demo.entity.AppBasic">-->
-<!--                <result column="state" property="state"/>-->
-<!--                <result column="name" property="name"/>-->
-<!--                <result column="author" property="author"/>-->
-<!--                <result column="examine" property="examine"/>-->
-<!--                <result column="url" property="url"/>-->
-<!--            </collection>-->
-<!--        </collection>-->
+            </collection>
+            <collection property="basic" ofType="com.ssm.demo.entity.AppBasic">
+                <result column="state" property="state"/>
+                <result column="name" property="name"/>
+                <result column="author" property="author"/>
+                <result column="examine" property="examine"/>
+                <result column="url" property="url"/>
+            </collection>
+        </collection>
     </resultMap>
 
 
@@ -49,7 +49,7 @@
         update Developer set devUsername=#{devUsername}, devNickname=#{devNickname}, devPassword=#{devPassword}, devInfo=#{devInfo} where devUsername=#{devUsername}
     </update>
 
-    <select id="selectDeveloper" resultType="Developer" parameterType="String">
+    <select id="selectDeveloper" resultMap="Developer" parameterType="String">
         select
         devUsername,devNickname,devPassword,devInfo
          from Developer where devUsername = #{devUsername}

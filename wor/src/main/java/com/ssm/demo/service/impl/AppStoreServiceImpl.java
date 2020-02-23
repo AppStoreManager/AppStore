@@ -2,11 +2,13 @@ package com.ssm.demo.service.impl;
 
 import com.ssm.demo.dao.*;
 import com.ssm.demo.entity.*;
+import com.ssm.demo.result.ErrorCode;
 import com.ssm.demo.service.AppStoreService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
@@ -41,8 +43,15 @@ public class AppStoreServiceImpl implements AppStoreService {
     }
     /*
     *这四个函数存在一个共同的问题，就是会直接把app的信息送到数据库，但是按道理应该先审核通过才送过去，但是审核不一定在
-    * 本次程序运行，数据并非永久化，所以目前也只是更改状态*/
-    public String newAppBasic(String basicInformation, String author,String name){
+    * 本次程序运行，数据并非永久化，所以目前也只是更改状态
+    *
+    *已解决：按照新增而非更新插入，审核后按照不同的审核结果删除不同内容*/
+    public int newAppBasic(String basicInformation, String author,String name){
+//        if(appsDao.selectByName(name)!=null){
+//            System.out.println(appsDao.selectByName(name));
+//            return ErrorCode.EXSITED;
+//        }
+
         App app = new App();
         AppBasic appBasic = new AppBasic();
         AppVersion appVersion = new AppVersion();
@@ -59,7 +68,7 @@ public class AppStoreServiceImpl implements AppStoreService {
         Date now = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");//可以方便地修改日期格式
         String time = dateFormat.format(now);
-        appVersion.setTime(time);
+        appVersion.setUpdateTime(time);
 
         appBasic.setExamine(0);//初始置为待审核状态
 
@@ -67,11 +76,16 @@ public class AppStoreServiceImpl implements AppStoreService {
         app.setVersion(appVersion);
         appsDao.insertNewApp(app);
 
+        Developer developer = developerDao.selectDeveloper(author);
+        List<App> appList = developer.getAppList();
+        appList.add(app);
+        developer.setAppList(appList);
+        developerDao.updateDeveloper(developer);
 
-        return "app上传成功，请耐心等待审核，审核完成后将第一时间通知您";
+        System.out.println("APP新增成功");
+        return ErrorCode.CREATED;
     }
-    public String newAppVersion(String name,String versionInformation,String versionId){
-        if (!IdVerify(versionId)) return "版本号格式不正确，请按“数字.数字.数字”形式输入";
+    public int newAppVersion(String name,String versionInformation,String versionId){
         App app = (App)appsDao.selectByName(name).get(0);
         AppVersion appVersion = new AppVersion();
 
@@ -82,7 +96,7 @@ public class AppStoreServiceImpl implements AppStoreService {
         Date now = new Date();
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");//可以方便地修改日期格式
         String time = dateFormat.format(now);
-        appVersion.setTime(time);
+        appVersion.setUpdateTime(time);
 
         app.setVersion(appVersion);
 
@@ -90,40 +104,77 @@ public class AppStoreServiceImpl implements AppStoreService {
         appBasic.setExamine(0);//设置为待审核
         app.setBasic(appBasic);
 
+
+        Developer developer = developerDao.selectDeveloper(app.getBasic().getAuthor());
+        List<App> appList = developer.getAppList();
+        appList.add(app);
+        developer.setAppList(appList);
+        developerDao.updateDeveloper(developer);
         appsDao.insertNewVersion(app);
-        return "新版本上传成功，请耐心等待审核，审核结果将尽快告知您。";
+        System.out.println("版本新增成功");
+        return ErrorCode.CREATED;
+
     }
-    public String changeAppBasic(String basicInformation,String author,String name) {
-        AppBasic appBasic = new AppBasic();
-        appBasic.setBasicInformation(basicInformation);
-        appBasic.setAuthor(author);
-        appBasic.setExamine(0);//设置为待审核
+    public int changeAppBasic(String basicInformation,String author,String name) {
+        List<App> apps= appsDao.selectByName(name);
 
-        appsDao.updateBasicInformation(appBasic, name);
+        Iterator<App> iter = apps.iterator();
+        while (iter.hasNext()) {
+            App app = (App) iter.next();
+            AppBasic appBasic = app.getBasic();
+            appBasic.setBasicInformation(basicInformation);
+            appBasic.setAuthor(author);
+            appBasic.setExamine(0);//设置为待审核
+            AppVersion appVersion = app.getVersion();
 
+            Date now = new Date();
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");//可以方便地修改日期格式
+            String time = dateFormat.format(now);
+            appVersion.setUpdateTime(time);
 
-        return "App基础信息更新成功，，请等待管理员审核，审核结果将第一时间通知您。";
+            app.setBasic(appBasic);
+            app.setVersion(appVersion);
+
+            Developer developer = developerDao.selectDeveloper(app.getBasic().getAuthor());
+            List<App> appList = developer.getAppList();
+            appList.add(app);
+            developer.setAppList(appList);
+            developerDao.updateDeveloper(developer);
+
+            appsDao.insertNewApp(app);
+        }
+
+        System.out.println("基础信息更新成功");
+        return ErrorCode.UPDATED;
     }
-    public String changeAppVersion(String name,String versionInformation,String versionId) {
-        if (!IdVerify(versionId)) return "版本号格式不正确，请按“数字.数字.数字”形式输入";
-        App app = (App)appsDao.selectByName(name).get(0);
+    public int changeAppVersion(String name,String versionInformation,String versionId) {
+        List<App> apps= appsDao.selectByName(name);
 
-        AppVersion appVersion = new AppVersion();
-        appVersion.setVersionInformation(versionInformation);
-        Date now = new Date();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");//可以方便地修改日期格式
-        String time = dateFormat.format(now);
-        appVersion.setTime(time);
+        Iterator<App> iter = apps.iterator();
+        while (iter.hasNext()) {
+            if (iter.next().getVersion().getVersionId().equals(versionId)) {
+                App app = (App) iter.next();
+                AppVersion appVersion = app.getVersion();
+                appVersion.setVersionInformation(versionInformation);
+                Date now = new Date();
+                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");//可以方便地修改日期格式
+                String time = dateFormat.format(now);
+                appVersion.setUpdateTime(time);
+                AppBasic appBasic = app.getBasic();
+                appBasic.setExamine(0);//设置为待审核
+                app.setBasic(appBasic);
+                app.setVersion(appVersion);
 
-        app.setVersion(appVersion);
-
-        AppBasic appBasic = app.getBasic();
-        appBasic.setExamine(0);//设置为待审核
-        app.setBasic(appBasic);
-
-        appsDao.updateVersion(app,name,versionId);
-
-        return "App基础信息更新成功，，请等待管理员审核，审核结果将第一时间通知您。";
+                Developer developer = developerDao.selectDeveloper(app.getBasic().getAuthor());
+                List<App> appList = developer.getAppList();
+                appList.add(app);
+                developer.setAppList(appList);
+                developerDao.updateDeveloper(developer);
+                appsDao.insertNewApp(app);
+            }
+        }
+        System.out.println("App版本信息更新成功");
+        return ErrorCode.UPDATED;
     }
 
     public List<App> getApps(String name) {
@@ -139,7 +190,20 @@ public class AppStoreServiceImpl implements AppStoreService {
                 iter.remove();
             }
         }
+        System.out.println(apps.toString());
         return apps;
+    }
+    public App getApp(String name,String versionId){
+        List<App> apps = appsDao.selectByName(name);
+        if (apps == null) return null;
+        Iterator<App> iter = apps.iterator();
+        while (iter.hasNext()) {
+            App app = (App) iter.next();
+            if (app.getVersion().getVersionId().equals(versionId)) {
+                return iter.next();
+            }
+        }
+        return null;
     }
     public List<App> getUnVerApps(String type){
         List<App> apps = appsDao.selectByName(type);
@@ -154,23 +218,25 @@ public class AppStoreServiceImpl implements AppStoreService {
                 iter.remove();
             }
         }
+        System.out.println(apps.toString());
         return apps;
     }
-    public String deleteApps(String name){
+    public int deleteApps(String name){
         appsDao.deleteAll(name);
-        return "已删除所有版本的"+name+"APP";
+        System.out.println("已删除所有版本的"+name+"APP");
+        return  ErrorCode.DELETED;
     }
 
-    public String upApp(String name,String versionId){
+    public int upApp(String name,String versionId){
         List<App> apps = appsDao.selectByName(name);
-        if (apps == null) return null;
+        if (apps == null) return ErrorCode.NOT_FOUND;
 
         //更改状态为已上架
         Iterator<App> iter = apps.iterator();
         while (iter.hasNext()) {
             App app = (App) iter.next();
             if (app.getVersion().getVersionId().equals(versionId)) {
-                if(app.getBasic().getExamine()!=1)return "App审核中或未通过审核，无法上架";
+                if(app.getBasic().getExamine()!=1)return ErrorCode.FORBIDDEN;
                 else {
                     AppBasic appBasic = app.getBasic();
                     appBasic.setState(true);
@@ -178,11 +244,11 @@ public class AppStoreServiceImpl implements AppStoreService {
                 }
             }
         }
-        return "App上架成功";
+        return ErrorCode.OK;
     }
-    public String downApp(String name,String versionId){
+    public int downApp(String name,String versionId){
         List<App> apps = appsDao.selectByName(name);
-        if (apps == null) return null;
+        if (apps == null) return ErrorCode.NOT_FOUND;
 
         //更改状态为已下架
         Iterator<App> iter = apps.iterator();
@@ -194,34 +260,78 @@ public class AppStoreServiceImpl implements AppStoreService {
                     app.setBasic(appBasic);
             }
         }
-        return "App下架成功";
+        return ErrorCode.OK;
     }
 
-    //审核这里其实应该是三个状态，但是最开始欠考虑用了Boolean，只有两个状态了，暂时先用两个状态写
     //参数judge的值取决于管理员的选择，选择通过judge为true，否则为false
-    public String verify(String name,String versionId,boolean judge) {
-        App app = (App) appsDao.selectByName(name).get(0);
-
-        AppBasic appBasic = app.getBasic();
-
-        if (judge) appBasic.setExamine(1);//设置为审核通过
-        else appBasic.setExamine(-1);//设置为审核未通过
-        app.setBasic(appBasic);
-        appsDao.updateVersion(app, name, versionId);
-        return "审核完成";
+    public int verify(String name,String versionId,boolean judge) {
+        List<App> apps= appsDao.selectByName(name);
+        Iterator<App> iter = apps.iterator();
+        while (iter.hasNext()) {
+            if(iter.next().getVersion().getVersionId().equals(versionId)&&iter.next().getBasic().getExamine()==0){
+                AppBasic appBasic = iter.next().getBasic();
+                if (judge) {
+                    appBasic.setExamine(1);//设置为审核通过
+                    appsDao.delete(name,versionId);
+                    appsDao.insertNewApp(iter.next());
+                    List<App> appList = appsDao.selectByAuthor(iter.next().getBasic().getAuthor());
+                    Developer developer = developerDao.selectDeveloper(iter.next().getBasic().getAuthor());
+                    developer.setAppList(appList);
+                    developerDao.updateDeveloper(developer);
+                }
+                else appBasic.setExamine(-1);//设置为审核未通过
+            }
+        }
+        return ErrorCode.OK;
     }
-    public String judge(String userId,String password){
+    public int judge(String userId,String password){
         Developer developer =(Developer)developerDao.selectDeveloper(userId);
         if(developer != null){
-            if(developer.getDevPassword().equals(password))return "Developer";
-            else return "密码错误";
+            if(developer.getDevPassword().equals(password))return ErrorCode.DEVELOPER;
+            else return ErrorCode.PASSWORD_ERROR;
         }
         else{
             Administrator administrator =(Administrator)administratorDao.getAdministrator(userId);
-            if(administrator==null)return "用户名不存在";
-            else if(administrator.getPassword().equals(password))return "Administrator";
-            else return "密码错误";
+            if(administrator==null)return ErrorCode.NO_USER;
+            else if(administrator.getPassword().equals(password))return ErrorCode.ADMINISTRATOR;
+            else return ErrorCode.PASSWORD_ERROR;
         }
 
+    }
+    public Administrator getAdminByName(String name){
+
+        if(administratorDao.getAdministrator(name)==null)return null;
+        System.out.println(administratorDao.getAdministrator(name).getPassword());
+        return administratorDao.getAdministrator(name);
+    }
+    public Developer getDevByName(String name){
+        if(developerDao.selectDeveloper(name)==null)return null;
+        else return developerDao.selectDeveloper(name);
+    }
+    public List<App> getAllApps(String devName){
+        return developerDao.selectDeveloper(devName).getAppList();
+    }
+    public int newAdmin(String userName,String nickname,String password,String range){
+        if(administratorDao.getAdministrator(userName)!=null)return ErrorCode.EXSIT_USER;
+        Administrator administrator =new Administrator();
+        administrator.setId(userName);
+        administrator.setAdministrator(nickname);
+        administrator.setPassword(password);
+        administrator.setVerifyRange(range);
+        administratorDao.createNewAdministrator(administrator);
+        return ErrorCode.CREATED;
+    }
+
+    public int newDev(String userName,String nickname,String password,String info){
+        if(developerDao.selectDeveloper(userName)!=null)return ErrorCode.EXSIT_USER;
+        Developer developer = new Developer();
+        developer.setDevUsername(userName);
+        developer.setDevPassword(password);
+        developer.setDevInfo(info);
+        developer.setDevNickname(nickname);
+        List<App> appList = new ArrayList<>();
+        developer.setAppList(appList);
+        developerDao.addDeveloper(developer);
+        return  ErrorCode.CREATED;
     }
 }

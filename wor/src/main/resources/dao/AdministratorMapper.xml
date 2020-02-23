@@ -5,7 +5,7 @@
 <!-- mapper:根标签，namespace：命名空间，这里指的是封装的DAO -->
 <mapper namespace="com.ssm.demo.dao.AdministratorDao">
     <!-- resultMap -->
-    <resultMap id="Administrator" type="com.ssm.demo.entity.Administrator">
+    <resultMap id="AdministratorInfo" type="com.ssm.demo.entity.Administrator">
         <result column="userName" property="userName"/>
         <result column="password" property="password"/>
         <result column="nickname" property="nickname"/>
@@ -23,7 +23,7 @@
     <delete id="deleteAdministrator" parameterType="String">
         delete from Administrator where userName = #{userName}
     </delete>
-    <select id="getAdministrator" resultMap="AdministratorInfo" parameterType="String">
+    <select id="getAdministrato[r" resultMap="AdministratorInfo" parameterType="String">
         select * from Administrator where userName = #{userName}
     </select>
 
